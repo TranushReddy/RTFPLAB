@@ -51,14 +51,33 @@ class SnakeWaterGun extends JFrame {
     private static final String[] CHOICES = { "Snake", "Water", "Gun" };
 
     private final JLabel scoreLabel, choiceCountLabel;
+    private final JLabel resultLabel, computerChoiceLabel, userChoiceLabel;
     private int wins = 0, losses = 0, ties = 0;
     private int snakeCount = 0, waterCount = 0, gunCount = 0;
 
     public SnakeWaterGun() {
         setTitle("Snake Water Gun");
-        setSize(500, 450);
+        setSize(500, 550); // Increased height to accommodate new panels
         setLayout(new BorderLayout(10, 10));
         setLocationRelativeTo(null);
+
+        // Instruction Panel
+        JPanel instructionPanel = new JPanel();
+        instructionPanel.setLayout(new BoxLayout(instructionPanel, BoxLayout.Y_AXIS));
+        instructionPanel.setBorder(BorderFactory.createTitledBorder("Game Rules"));
+        
+        JTextArea rulesText = new JTextArea(
+            "• Snake drinks Water (Snake wins against Water)\n" +
+            "• Water extinguishes Gun (Water wins against Gun)\n" +
+            "• Gun kills Snake (Gun wins against Snake)\n" +
+            "• Same choices result in a tie."
+        );
+        rulesText.setEditable(false);
+        rulesText.setBackground(instructionPanel.getBackground());
+        rulesText.setFont(new Font("Arial", Font.PLAIN, 14));
+        rulesText.setLineWrap(true);
+        rulesText.setWrapStyleWord(true);
+        instructionPanel.add(rulesText);
 
         JPanel topPanel = new JPanel();
         JLabel instructionLabel = new JLabel("Choose Snake, Water, or Gun:");
@@ -76,6 +95,23 @@ class SnakeWaterGun extends JFrame {
             buttonPanel.add(button);
         }
 
+        // Result Display Panel
+        JPanel resultPanel = new JPanel(new GridLayout(3, 1, 0, 5));
+        resultPanel.setBorder(BorderFactory.createTitledBorder("Round Result"));
+        
+        userChoiceLabel = new JLabel("Your choice: ", JLabel.CENTER);
+        userChoiceLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        
+        computerChoiceLabel = new JLabel("Computer's choice: ", JLabel.CENTER);
+        computerChoiceLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        
+        resultLabel = new JLabel("Make your choice to start", JLabel.CENTER);
+        resultLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        
+        resultPanel.add(userChoiceLabel);
+        resultPanel.add(computerChoiceLabel);
+        resultPanel.add(resultLabel);
+
         JPanel scorePanel = new JPanel(new GridLayout(2, 1, 0, 5));
         scorePanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20));
 
@@ -92,8 +128,15 @@ class SnakeWaterGun extends JFrame {
         resetButton.addActionListener(e -> resetStats());
         scorePanel.add(resetButton);
 
-        add(topPanel, BorderLayout.NORTH);
+        // Combine top sections in a panel
+        JPanel topSectionPanel = new JPanel(new BorderLayout());
+        topSectionPanel.add(instructionPanel, BorderLayout.NORTH);
+        topSectionPanel.add(topPanel, BorderLayout.SOUTH);
+
+        // Add all panels to the frame
+        add(topSectionPanel, BorderLayout.NORTH);
         add(buttonPanel, BorderLayout.CENTER);
+        add(resultPanel, BorderLayout.AFTER_LINE_ENDS);
         add(scorePanel, BorderLayout.SOUTH);
 
         setVisible(true);
@@ -105,12 +148,20 @@ class SnakeWaterGun extends JFrame {
         String computerChoice = getSmartCounterChoice();
         String result = determineWinner(userChoice, computerChoice);
 
+        // Update the choice and result labels
+        userChoiceLabel.setText("Your choice: " + userChoice);
+        computerChoiceLabel.setText("Computer's choice: " + computerChoice);
+        resultLabel.setText(result);
+
         if (result.equals("You win!")) {
             wins++;
+            resultLabel.setForeground(new Color(0, 150, 0)); // Green for win
         } else if (result.equals("You lose!")) {
             losses++;
+            resultLabel.setForeground(Color.RED); // Red for loss
         } else {
             ties++;
+            resultLabel.setForeground(Color.BLUE); // Blue for tie
         }
 
         updateScore();
@@ -174,10 +225,13 @@ class SnakeWaterGun extends JFrame {
     private void resetStats() {
         wins = losses = ties = 0;
         snakeCount = waterCount = gunCount = 0;
+        userChoiceLabel.setText("Your choice: ");
+        computerChoiceLabel.setText("Computer's choice: ");
+        resultLabel.setText("Make your choice to start");
+        resultLabel.setForeground(Color.BLACK);
         updateScore();
     }
 }
-
 class TicTacToe extends JFrame {
     private static final long serialVersionUID = 1L;
 
